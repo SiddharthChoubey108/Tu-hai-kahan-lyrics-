@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#160d18">
+  <title>Tu Hai Kahan — AUR | Animated Lyrics</title>
+  <style>
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  color-scheme: dark;
+  --accent: #f28ab2;
+  --accent-strong: #db8ab7b7;
+  --text: #fff8fc;
+}
+
+html {
+  min-height: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100svh;
+  margin: 0;
+  padding: clamp(16px, 4vw, 48px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-x: hidden;
+  font-family: Arial, Helvetica, sans-serif;
+  color: var(--text);
+  background-color: #160d18;
+  background-image:
+    linear-gradient(rgba(15, 7, 18, 0.55), rgba(15, 7, 18, 0.78)),
+    url("bg.jpeg.jpeg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+.player {
+  width: min(100%, 900px);
+  min-height: min(540px, 80vh);
+  padding: clamp(24px, 6vw, 64px) clamp(16px, 5vw, 48px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+  background: rgba(20, 10, 22, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 28px;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+.music-note {
+  color: var(--accent);
+  font-size: clamp(38px, 7vw, 64px);
+  line-height: 1;
+  text-shadow: 0 0 24px rgba(242, 138, 178, 0.65);
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.28em;
+  opacity: 0.8;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  letter-spacing: 0.04em;
+}
+
+.lyrics {
+  width: 100%;
+  min-height: 3.2em;
+  margin: clamp(12px, 3vh, 28px) 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-wrap: anywhere;
+  font-size: clamp(1.25rem, 4.4vw, 2.8rem);
+  line-height: 1.35;
+  font-weight: 700;
+  color: var(--accent);
+  text-shadow: 0 0 14px rgba(240, 0, 90, 0.55);
+  transition: opacity 180ms ease;
+}
+
+.lyrics.is-typing {
+  opacity: 0.96;
+}
+
+button {
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 24px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent-strong);
+  color: #160d18;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 180ms ease, filter 180ms ease;
+}
+
+button:hover {
+  filter: brightness(1.12);
+  transform: translateY(-2px);
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+button:focus-visible {
+  outline: 3px solid white;
+  outline-offset: 4px;
+}
+
+.status {
+  min-height: 1.2em;
+  margin: 0;
+  font-size: 0.85rem;
+  opacity: 0.78;
+}
+
+
+.video-wrap {
+  width: min(100%, 560px);
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.18);
+  box-shadow: 0 10px 35px rgba(0,0,0,.3);
+}
+.video-wrap iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+@media (max-width: 600px) {
+  body {
+    padding: 12px;
+    background-attachment: scroll;
+  }
+
+  .player {
+    min-height: 70svh;
+    padding: 28px 18px;
+    gap: 12px;
+    border-radius: 22px;
+  }
+
+  .lyrics {
+    min-height: 4.2em;
+    margin: 18px 0;
+    font-size: clamp(1.25rem, 6vw, 2rem);
+  }
+
+  button {
+    width: min(100%, 240px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+  </style>
+
+</head>
+<body>
+  <main class="player">
+    <div class="video-wrap" aria-label="Tu Hai Kahan by AUR online music player">
+      <div id="player"></div>
+    </div>
+
+    <div class="music-note" aria-hidden="true">♫</div>
+    
+    <h1 class="title">Tu Hai Kahan — AUR</h1>
+
+    <div id="lyrics" class="lyrics" aria-live="polite">Tap play to begin ✨</div>
+
+    <button id="playbtn" type="button" aria-label="Play song">
+      <span id="playIcon" aria-hidden="true">▶</span>
+      <span id="playLabel">Play song</span>
+    </button>
+    <p id="status" class="status">Connect to the internet to play the song online.</p>
+  </main>
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script>
+    const playBtn = document.getElementById("playbtn");
+    const playIcon = document.getElementById("playIcon");
+    const playLabel = document.getElementById("playLabel");
+    const lyricsDiv = document.getElementById("lyrics");
+    const statusText = document.getElementById("status");
+
+    // Official YouTube embed for “Tu Hai Kahan” by AUR.
+    const videoId = "AX6OrBG2zGY";
+    const lyricsStartTime = 11;
+    let player;
+    let currentIndex = 0;
+    let typingTimer = null;
+    let activeLine = "";
+    let startedOnce = false;
+    let syncTimer = null;
+
+    const lyricsData = [
+  { time: 11, text: "💖 Ki jab main hadd se aage badh gaya tha aashiqui me" },
+  { time: 14, text: "💖 Yaani Zindagi ko le raha mazak hi me" },
+  { time: 16, text: "💖 Fir mazak hi me mil gaya sab khaak hi me" },
+  { time: 19, text: "💖Choo kar aaya manziley to tanha tha me vapasi me" },
+  { time: 22, text: "💖Jaise phool todey hongey tumne jholi bharkay" },
+  { time: 24, text: "💖Me wo phool jo ki reh gaya tha shaakh hi me" },
+  { time: 28, text: "💖Jaise khwaab hi me khwaab gaahein aankh hi me" },
+  { time: 30, text: "💖 Pal se pal me kya hua tum reh gaye bas yaad hi me" },
+  { time: 34, text: "💖Ek sawaal machalta hai mere dil me kabhi" },
+  { time: 36, text: "💖Tujhe me bhul jaau yaa tujhe me yaad karu" },
+  { time: 38, text: "💖Tujhi ko soch ke likhta hu jo bhi likhta hu " },
+  { time: 42, text: "💖Ab likh raha hu to fir kyu na ek sawal karu" },
+  { time: 45, text: "💖Main is sawal se gham to badal du khusiyon me" },
+  { time: 47, text: "💖Par inn bejaan si khushiyon se kya kamaal karu" },
+  { time: 51, text: "💖Par ab sawal bhi kamal, tu sambhaal le filhaal" },
+  { time: 54, text: "💖Ye zawaal bichaa jaal kya main chaal chalu" },
+  { time: 57, text: "💖Chaal chal tu apni main tujhe pehchaan lunga" },
+  { time: 59, text: "💖Mai apni mehfilon me sirf tera hi naam lunga" },
+  { time: 62, text: "💖Tujhe pasand hai dheema lehja or bas khamoshiyaan" },
+  { time: 65, text: "💖Me tere khaatir apni khudki saanse thaam lunga" },
+  { time: 68, text: "💖Kya tere saare aansu mere ho sakte hai" },
+  { time: 70, text: "💖Aisa hai to tere khaatir hum bhi ro sakte hai" },
+  { time: 74, text: "💖Mere khaatir mere rone par ab tum bas hass dena" },
+  { time: 76, text: "💖Ekbaar teri muskurahat ke piche hum sab kuch kho sakte hai" },
+  { time: 79, text: "💖Kya meri mohbbaton ka koi hisaab nahi hai" },
+  { time: 82, text: "💖Kya teri aankhon me mere liye koi khwaab nahi hai" },
+  { time: 85, text: "💖Tujhe kya hi karu ghamzada ab jaane de" },
+  { time: 88, text: "💖Ki tere paas mere pyaar ka jawaab nai hai" },
+  { time: 91, text: "💖Kitni muddate hui hai, tumne khat kyu nahi bheja" },
+  { time: 93, text: "💖Gaa leta hu tere liye, mausiqi nahi hai pesha" },
+  { time: 97, text: "💖Aane ki khabar hi nahi tere ab" },
+  { time: 100, text: "💖Ab kya masuamo se puchu tere aane ka andesha" },
+  { time: 102, text: "💖 Ankhon me aansoon nahi hai" },
+  { time: 106, text: "💖 Kaha hai tu kaha tu nahi hai" },
+  { time: 109, text: "💖Dil ko ye ab jaan'na hi nahi, bas tum chale aao" },
+  { time: 114, text: "💖  Tu hai kahan, khwabo ke iss sheher me mera dil tujhe dhund taa" },
+  { time: 122, text: "💖Dhund taa............." },
+  { time: 125, text: "💖 Arsaa hua, tujhko dekha nahi" },
+  { time: 127, text: "💖 Tu na jaane kaha chup gaya" },
+  { time: 134, text: "💖 Chup gaya..........." },
+  { time: 137, text: "💖  Aao firse hum chale" },
+  { time: 138, text: "💖Thaam lo ye haath, kardo kam yeh faasle" },
+  { time: 141, text: "💖Na pata ho manzilon ka, na ho Raste" },
+  { time: 144, text: "💖Tu ho, main hu, bethe dono firr" },
+  { time: 146, text: "💖Hum taaron ke taley" },
+  { time: 148, text: "💖Naa subah ho fir, naa hi din dhale" },
+  { time: 151, text: "💖Kuch na keh sake, kuch na sun sake" },
+  { time: 154, text: "💖Batein sari wo, dil me hi rahein" },
+  { time: 157, text: "💖Tumko kya pata hai kya ho tum mere liye" },
+  { time: 159, text: "💖Kehkasha Ho Tum" },
+  { time: 161, text: "💖Kahaniyon ki pariyon ki tarah ho tum" },
+  { time: 164, text: "💖Mujhme aasake naa koi iss tarah ho tum" },
+  { time: 167, text: "💖Ho yaaqeen tum mera, ya fir gumaan ho tum" },
+  { time: 171, text: "💖Ashiyaan ho tum" },
+  { time: 173, text: "💖Mai bhatka sa musafir aur makaan ho tum" },
+  { time: 175, text: "💖Meri manzilon ka ek hi rasta ho tum" },
+
+  { time: 178, text: "💖Dhund ta hai dil tujhe bata kahan ho tum" },
+  { time: 182, text: "💖Ho jahan kahin bhi" },
+  { time: 184, text: "💖Aao paas taake aansu mere tham sake" },
+  { time: 186, text: "💖Yaad aa rahe ho tum mujhe ab har lamhe" },
+  { time: 189, text: "💖Aisi zindagi ka kya jo tum zindagi me hoke" },
+  { time: 192, text: "💖Meri zindagi na ban sake" },
+  { time: 195, text: "💖Sochta rahu ya bhul jau ab tumhe" },
+  { time: 197, text: "💖Tum mil hi na sakoge, to fir kaise chahun ab tumhe" },
+  { time: 200, text: "💖Tere saare khwaab pal me jod denge" },
+  { time: 202, text: "💖Jisme tu hi na basega, fir wo dil hi tod denge" },
+  { time: 205, text: "💖Chod denge wo sheher "},
+  { time: 207, text: "💖Ke jisme tum na hoge" },
+  { time: 208, text: "💖Tuut jaaenge makaan" },
+  { time: 210, text: "💖Wo saare hasrato ke" },
+  { time: 211, text: "💖Guzre pal jo saath tere" },
+  { time: 212, text: "💖Wo pal hai bas sukoon ke" },
+  { time: 214, text: "💖Mil lo ab tum iss tarah se" },
+  { time: 216, text: "💖Ke fir nahi miloge" }, 
+  { time: 218, text: "💖Tu hi tha saath me mere, kaise me jiunga akele" },
+  { time: 223, text: "💖Taare gin gin ke hogayi hai subha" },
+   { time: 227, text: "💖Tu hai kaha, khwabo ke iss sheher me mera dil tujhe dhund taa" },
+ { time: 237, text: "💖Dhund taa............." },
+ { time: 239, text: "💖Arsaa hua, tujhko dekha nahi" },
+ { time: 244, text: "💖Tu na jaane kaha chup gaya" },
+ { time: 248, text: "💖Chup gaya..........." },
+
+
+];
+
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player("player", {
+        videoId,
+        playerVars: { playsinline: 1, rel: 0, modestbranding: 1 },
+        events: {
+          onReady: () => { statusText.textContent = "Online music ready — tap Play song ✨"; },
+          onStateChange: onPlayerStateChange,
+          onError: () => { statusText.textContent = "Video unavailable here. Open YouTube and search ‘Tu Hai Kahan AUR official’."; }
+        }
+      });
+    }
+    window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
+
+    function stopTyping() {
+      if (typingTimer !== null) { clearInterval(typingTimer); typingTimer = null; }
+      lyricsDiv.classList.remove("is-typing");
+    }
+    function typeLine(text, speed = 34) {
+      stopTyping(); activeLine = text; lyricsDiv.textContent = "";
+      lyricsDiv.classList.add("is-typing");
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        lyricsDiv.textContent = text; lyricsDiv.classList.remove("is-typing"); return;
+      }
+      let i = 0;
+      typingTimer = window.setInterval(() => {
+        if (activeLine !== text) { stopTyping(); return; }
+        lyricsDiv.textContent += text.charAt(i++);
+        if (i >= text.length) stopTyping();
+      }, speed);
+    }
+    function syncLyrics() {
+      if (!player || typeof player.getCurrentTime !== "function") return;
+      const time = player.getCurrentTime();
+      while (currentIndex < lyricsData.length && time >= lyricsData[currentIndex].time) {
+        typeLine(lyricsData[currentIndex].text);
+        currentIndex++;
+      }
+    }
+    function updatePlayButton(isPlaying) {
+      playIcon.textContent = isPlaying ? "Ⅱ" : "▶";
+      playLabel.textContent = isPlaying ? "Pause song" : "Play song";
+      playBtn.setAttribute("aria-label", isPlaying ? "Pause song" : "Play song");
+    }
+    function onPlayerStateChange(event) {
+      if (event.data === YT.PlayerState.PLAYING) {
+        updatePlayButton(true);
+        statusText.textContent = "Now playing online — Tu Hai Kahan by AUR ✨";
+        if (syncTimer) clearInterval(syncTimer);
+        syncTimer = setInterval(syncLyrics, 200);
+      } else {
+        updatePlayButton(false);
+        if (syncTimer) { clearInterval(syncTimer); syncTimer = null; }
+        if (event.data === YT.PlayerState.ENDED) statusText.textContent = "Song finished — tap Play song to listen again.";
+        else if (event.data === YT.PlayerState.PAUSED) statusText.textContent = "Song paused";
+      }
+    }
+    playBtn.addEventListener("click", () => {
+      if (!player || typeof player.playVideo !== "function") {
+        statusText.textContent = "Loading YouTube player… please try again in a moment."; return;
+      }
+      const state = player.getPlayerState();
+      if (state === YT.PlayerState.PLAYING) { player.pauseVideo(); return; }
+      if (!startedOnce || state === YT.PlayerState.ENDED) {
+        player.seekTo(lyricsStartTime, true);
+        currentIndex = 0;
+        lyricsDiv.textContent = "♪";
+        startedOnce = true;
+      } else {
+        const t = player.getCurrentTime();
+        currentIndex = lyricsData.findIndex(item => item.time > t);
+        if (currentIndex < 0) currentIndex = lyricsData.length;
+      }
+      player.playVideo();
+    });
+    // Keep the lyric display aligned when users seek with YouTube's controls.
+    window.setInterval(() => {
+      if (!player || typeof player.getCurrentTime !== "function") return;
+      if (player.getPlayerState() === YT.PlayerState.PLAYING) return;
+      const t = player.getCurrentTime();
+      const next = lyricsData.findIndex(item => item.time > t);
+      const idx = next < 0 ? lyricsData.length : next;
+      if (idx !== currentIndex) {
+        currentIndex = idx;
+        const previous = [...lyricsData].reverse().find(item => item.time <= t);
+        if (previous) typeLine(previous.text);
+      }
+    }, 700);
+  </script>
+
+</body>
+</html>
